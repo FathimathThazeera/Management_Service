@@ -1,39 +1,38 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Book;
-import com.example.demo.service.BookService;
+import com.example.demo.entity.Asset;
+import com.example.demo.service.AssetService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 
-
 @RestController
-@RequestMapping("/book")
-public class BookController {
+@RequestMapping("/asset")
+public class AssetController {
 
     //private Map<Long, Book> map = new HashMap<>();
     @Autowired
-    BookService bookService;
+    AssetService assetService;
 
     @GetMapping("/all")
-    public ResponseEntity<Collection<Book>> getAll() {
-        return ResponseEntity.ok(bookService.getMap().values());
+    public ResponseEntity<Collection<Asset>> getAll() {
+        return ResponseEntity.ok(assetService.getMap().values());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getById(@PathVariable long id) {
-        Book book = bookService.getById(id);
-        if (book == null) {
+    public ResponseEntity<Asset> getById(@PathVariable long id) {
+        Asset asset = assetService.getById(id);
+        if (asset == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(book);
+        return ResponseEntity.ok(asset);
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<Void> insert(@RequestBody Book book) {
-        boolean res = bookService.insert(book);
+    public ResponseEntity<Void> insert(@RequestBody Asset asset) {
+        boolean res = assetService.insert(asset);
         if (res) {
             return ResponseEntity.ok().build();
         } else {
@@ -42,8 +41,8 @@ public class BookController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> update(@RequestBody Book book) {
-        boolean res = bookService.update(book);
+    public ResponseEntity<Void> update(@RequestBody Asset asset) {
+        boolean res = assetService.update(asset);
         if (!res) {
             return ResponseEntity.badRequest().build();
         } else {
@@ -53,7 +52,7 @@ public class BookController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        boolean res = bookService.delete(id);
+        boolean res = assetService.delete(id);
         if (!res) {
             return ResponseEntity.badRequest().build();
         } else {
