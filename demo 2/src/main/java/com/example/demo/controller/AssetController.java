@@ -12,9 +12,8 @@ import java.util.Collection;
 @RequestMapping("/asset")
 public class AssetController {
 
-    //private Map<Long, Book> map = new HashMap<>();
     @Autowired
-    AssetService assetService;
+    private AssetService assetService;
 
     @GetMapping("/all")
     public ResponseEntity<Collection<Asset>> getAll() {
