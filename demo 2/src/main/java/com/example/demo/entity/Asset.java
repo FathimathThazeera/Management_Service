@@ -1,16 +1,26 @@
 package com.example.demo.entity;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.Year;
 
 public class Asset {
+    @NotNull
     private long id;
+    @NotBlank
     private String name;
-    private int amount;
+    @Min(0)
+    @NotNull
+    private Integer amount;
+    @NotNull
     private Year make;
+    @NotNull
     private Type type;
+    @NotNull
     private Brand brand;
 
-    public Asset(long id, String name, int amount, Year make, Type type, Brand brand ) {
+    public Asset(long id, String name, Integer amount, Year make, Type type, Brand brand) {
         this.id = id;
         this.name = name;
         this.amount = amount;

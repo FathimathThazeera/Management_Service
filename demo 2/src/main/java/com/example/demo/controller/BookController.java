@@ -2,10 +2,12 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Book;
 import com.example.demo.service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.validation.Valid;
 import java.util.Collection;
 
 
@@ -32,23 +34,15 @@ public class BookController {
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<Void> insert(@RequestBody Book book) {
-        boolean res = bookService.insert(book);
-        if (res) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public void insert(@RequestBody @Valid Book book) {
+        bookService.insert(book);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> update(@RequestBody Book book) {
-        boolean res = bookService.update(book);
-        if (!res) {
-            return ResponseEntity.badRequest().build();
-        } else {
-            return ResponseEntity.ok().build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public void update(@RequestBody Book book) {
+        bookService.update(book);
     }
 
     @DeleteMapping("/delete/{id}")
