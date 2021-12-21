@@ -1,9 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Asset;
+import com.example.demo.exceptions.AssetNotFoundException;
+import com.example.demo.exceptions.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.http.ResponseEntity;
-
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class AssetService {
 
     public boolean insert(Asset asset){
         if (map.containsKey(asset.getId())) {
-            return false;
+            throw new DuplicateKeyException();
         }
         map.put(asset.getId(), asset);
         return true;
@@ -33,7 +33,7 @@ public class AssetService {
     public boolean update(Asset asset){
         if(!map.containsKey(asset.getId()))
         {
-            return false;
+            throw new AssetNotFoundException();
         }
         map.put(asset.getId(), asset);
         return true;
@@ -41,7 +41,7 @@ public class AssetService {
 
     public boolean delete(long id){
         if (!map.containsKey(id)) {
-            return false;
+            throw new AssetNotFoundException();
         }
         map.remove(id);
         return true;

@@ -3,9 +3,11 @@ package com.example.demo.controller;
 import com.example.demo.entity.Asset;
 import com.example.demo.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
@@ -30,23 +32,15 @@ public class AssetController {
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<Void> insert(@RequestBody Asset asset) {
-        boolean res = assetService.insert(asset);
-        if (res) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public void insert(@RequestBody @Valid Asset asset) {
+        assetService.insert(asset);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> update(@RequestBody Asset asset) {
-        boolean res = assetService.update(asset);
-        if (!res) {
-            return ResponseEntity.badRequest().build();
-        } else {
-            return ResponseEntity.ok().build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public void update(@RequestBody Asset asset) {
+        assetService.update(asset);
     }
 
     @DeleteMapping("/delete/{id}")

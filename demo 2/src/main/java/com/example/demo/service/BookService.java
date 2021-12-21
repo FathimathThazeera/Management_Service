@@ -1,8 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Book;
+import com.example.demo.exceptions.BookNotFoundException;
+import com.example.demo.exceptions.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class BookService {
 
     public boolean insert(Book book){
         if (map.containsKey(book.getId())) {
-            return false;
+            throw new DuplicateKeyException();
         }
         map.put(book.getId(), book);
         return true;
@@ -32,7 +33,7 @@ public class BookService {
     public boolean update(Book book){
         if(!map.containsKey(book.getId()))
         {
-            return false;
+            throw new BookNotFoundException();
         }
         map.put(book.getId(), book);
         return true;
@@ -40,7 +41,7 @@ public class BookService {
 
     public boolean delete(long id){
         if (!map.containsKey(id)) {
-            return false;
+            throw new BookNotFoundException();
         }
         map.remove(id);
         return true;
