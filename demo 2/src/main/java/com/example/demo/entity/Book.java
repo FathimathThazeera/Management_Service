@@ -1,29 +1,32 @@
 package com.example.demo.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.example.demo.repository.table.BookTable;
+import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Year;
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
+@Data
+
 public class Book {
     @NotNull
-    private long id;
+    private final Long id;
     @NotBlank
-    private String name;
+    private final String name;
     @NotBlank
-    private String author;
+    private final String author;
     @NotNull
-    private Year publishedYear;
+    private final Year publishedYear;
     @Min(0)
     @NotNull
-    private Integer cost;
+    private final Integer cost;
+
+
+    public BookTable toBookTable() {
+        return new BookTable(this.id, this.name, this.author, this.publishedYear, this.cost);
+    }
 }
+
+
