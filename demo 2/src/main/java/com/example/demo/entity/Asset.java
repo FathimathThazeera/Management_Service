@@ -1,31 +1,31 @@
 package com.example.demo.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.example.demo.repository.table.AssetTable;
+import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Year;
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
+@Data
+
 public class Asset {
     @NotNull
-    private long id;
+    private final Long id;
     @NotBlank
-    private String name;
+    private final String name;
     @Min(0)
     @NotNull
-    private Integer amount;
+    private final Integer amount;
     @NotNull
-    private Year make;
+    private final Year make;
     @NotNull
-    private Type type;
+    private final Type type;
     @NotNull
-    private Brand brand;
+    private final Brand brand;
+
+    public AssetTable toAssetTable() {
+        return new AssetTable(this.id, this.name, this.amount, this.make, this.type);
+    }
 }
