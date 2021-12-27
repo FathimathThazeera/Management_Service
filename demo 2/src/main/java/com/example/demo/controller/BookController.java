@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Book;
 import com.example.demo.service.BookService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +21,13 @@ public class BookController {
     @Autowired
     BookService bookService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @GetMapping("/all")
     public ResponseEntity<Collection<Book>> getAll() {
         log.info("Received a request to get all book info ");
-        return ResponseEntity.ok(bookService.getMap().values());
+        return ResponseEntity.ok(bookService.getMap());
     }
 
     @GetMapping("/{id}")
@@ -37,15 +42,15 @@ public class BookController {
 
     @PostMapping("/insert")
     @ResponseStatus(HttpStatus.OK)
-    public void insert(@RequestBody @Valid Book book) {
-        log.info("Received a request to insert book : {}", book);
+    public void insert(@RequestBody @Valid Book book) throws JsonProcessingException {
+        log.info("Received a request to insert book : {}", objectMapper.writeValueAsString(book));
         bookService.insert(book);
     }
 
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@RequestBody Book book) {
-        log.info("Received a request to update book : {}", book);
+    public void update(@RequestBody Book book) throws JsonProcessingException {
+        log.info("Received a request to update book : {}", objectMapper.writeValueAsString(book));
         bookService.update(book);
     }
 

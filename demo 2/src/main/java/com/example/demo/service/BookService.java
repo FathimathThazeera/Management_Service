@@ -3,51 +3,57 @@ package com.example.demo.service;
 import com.example.demo.entity.Book;
 import com.example.demo.exceptions.BookNotFoundException;
 import com.example.demo.exceptions.DuplicateKeyException;
+import com.example.demo.repository.table.BookRepository;
+import com.example.demo.repository.table.BookTable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 public class BookService {
-    private Map<Long, Book> map = new HashMap<>();
+    @Autowired
+    private BookRepository bookRepository;
 
-    public Map<Long, Book> getMap() {
-        return map;
+    public List<Book> getMap() {
+        return bookRepository.findAll().stream().map(BookTable::toBook).collect(Collectors.toList());
     }
 
     public void insert(Book book) {
-        if (map.containsKey(book.getId())) {
+        if (bookRepository.existsById(book.getId())) {
             log.warn("Duplicate message is trying to be inserted");
             throw new DuplicateKeyException();
         }
-        map.put(book.getId(), book);
+        bookRepository.save(book.toBookTable());
     }
 
     public Book getById(long id) {
-        if (!map.containsKey(id)) {
+        Optional<BookTable> optionalBookTable = bookRepository.findById(id);
+        if (!optionalBookTable.isPresent()) {
             log.warn("Book not found");
             throw new BookNotFoundException();
         }
-        return map.get(id);
+        return optionalBookTable.get().toBook();
     }
 
     public void update(Book book) {
-        if (!map.containsKey(book.getId())) {
+        if (!bookRepository.existsById(book.getId())) {
             log.warn("Book not found while updating");
             throw new BookNotFoundException();
         }
-        map.put(book.getId(), book);
+        bookRepository.save(book.toBookTable());
     }
 
     public void delete(long id) {
-        if (!map.containsKey(id)) {
+        if (!bookRepository.existsById(id)) {
             log.warn("Invalid ID");
             throw new BookNotFoundException();
         }
-        map.remove(id);
+        bookRepository.deleteById(id);
     }
 }
