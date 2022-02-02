@@ -4,19 +4,20 @@ import com.example.demo.constants.ResultInfoConstants;
 import com.example.demo.entity.Otp;
 import com.example.demo.response.ResponseWrapper;
 import com.example.demo.service.OtpService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/otp")
 @Slf4j
 public class OtpController {
-    @Autowired
-    private OtpService otpService;
+
+    private final OtpService otpService;
 
     @PostMapping("/generate")
     @ResponseStatus(HttpStatus.OK)

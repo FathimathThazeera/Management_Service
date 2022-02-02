@@ -22,6 +22,7 @@ public class AccountTable {
     private int password;
     private int otp;
     private int count;
+    private boolean login;
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -29,14 +30,15 @@ public class AccountTable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    public AccountTable(Long phone, int password, int otp, int count) {
+    public AccountTable(Long phone, int password, int otp, int count, boolean login) {
         this.phone = phone;
         this.password = password;
         this.otp = otp;
         this.count = count;
+        this.login = login;
     }
 
     public Account toAccount() {
-        return new Account(this.phone, this.password, this.otp, this.count);
+        return new Account(this.phone, this.password, this.otp, this.count, this.login);
     }
 }

@@ -8,5 +8,9 @@ import org.springframework.stereotype.Repository;
 public interface AccountRepository extends JpaRepository<AccountTable, Long> {
     @Query(value = "select * from account_table where phone = :phone ", nativeQuery = true)
     public AccountTable getUser(Long phone);
+
+    // @Query(value = "select * from account_table where phone = :phone ", nativeQuery = true)
+    public AccountTable getUserByPhone(Long phone);
+
 }
 

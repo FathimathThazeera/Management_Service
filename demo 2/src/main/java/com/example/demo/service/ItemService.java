@@ -3,112 +3,164 @@ package com.example.demo.service;
 import com.example.demo.constants.ResultInfoConstants;
 import com.example.demo.entity.Item;
 import com.example.demo.exceptions.AccountNotFoundException;
-import com.example.demo.exceptions.DuplicateKeyException;
-import com.example.demo.repository.table.FolderRepository;
-import com.example.demo.repository.table.FolderTable;
-import com.example.demo.repository.table.ItemRepository;
-import com.example.demo.repository.table.ItemTable;
+import com.example.demo.repository.table.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class ItemService {
 
-    @Autowired
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
-    @Autowired
-    private FolderRepository folderRepository;
+    private final AccountRepository accountRepository;
 
-    public List<Item> getMap() {
-        return itemRepository.findAll().stream().map(ItemTable::toItem).collect(Collectors.toList());
+    private final FolderRepository folderRepository;
+
+    public List<Item> getMap(Long phone) {
+        AccountTable accountTable = accountRepository.getUser(phone);
+        if (accountTable == null) {
+            log.warn("Invalid phone number");
+            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
+        }
+        if (!accountTable.isLogin()) {
+            log.warn("Need to login");
+            throw new AccountNotFoundException(ResultInfoConstants.NEED_TO_LOGIN);
+        }
+        return itemRepository.findByPhone(phone).stream().map(ItemTable::toItem).collect(Collectors.toList());
     }
 
-    public String insert(Item item) {
-        if (itemRepository.existsById(item.getSite())) {
-            log.warn("Item already existing");
-            throw new DuplicateKeyException(ResultInfoConstants.ITEM_ALREADY_EXISTING);
+    public String insert(Item item, Long phone) {
+        AccountTable accountTable = accountRepository.getUser(phone);
+        if (accountTable == null) {
+            log.warn("Invalid phone number");
+            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
         }
+        if (!accountTable.isLogin()) {
+            log.warn("Need to login");
+            throw new AccountNotFoundException(ResultInfoConstants.NEED_TO_LOGIN);
+        }
+       /*UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+        UrlValidator urlValidator = new URLValidator();
+          if (urlValidator.isValid()){
+            log.warn("Enter valid url");
+            throw new DuplicateKeyException(ResultInfoConstants.ENTER_VALID_URL);
+        }*/
 
-        String folderName = item.getFolder();
-        FolderTable folderTable = folderRepository.getFolder(folderName);
+        Long folderId = item.getFolder();
+        FolderTable folderTable = folderRepository.getFolderByIdAndPhone(folderId, phone);
         if (folderTable == null) {
-            log.warn("Invalid folder name");
+            log.warn("Invalid folder id");
             throw new AccountNotFoundException(ResultInfoConstants.FOLDER_NOT_FOUND);
         }
 
-        return itemRepository.save(item.toItemTable(folderTable.getFolder())).getSite();
+        ItemTable itemTable = item.toItemTable(folderTable.getId());
+        itemTable.setPhone(phone);
+        return itemRepository.save(itemTable).getSite();
     }
 
-    public Item getBySite(String site) {
-        Optional<ItemTable> optionalItemTable = itemRepository.findById(site);
-        if (!optionalItemTable.isPresent()) {
-            log.warn("Item not found");
-            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
+    public List<Item> getBySite(String site, Long phone) {
+        AccountTable accountTable = accountRepository.getUser(phone);
+        if (accountTable == null) {
+            log.warn("Invalid phone number");
+            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
         }
-        return optionalItemTable.get().toItem();
-    }
-
-    public String update(Item item, String site) {
-        Optional<ItemTable> oldItem = itemRepository.findById(site);
-        if (!oldItem.isPresent()) {
-            log.warn("Item not found while updating");
-            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
-        }
-        String folderName = item.getFolder();
-        FolderTable folderTable = folderRepository.getFolder(folderName);
-        if (folderTable == null) {
-            throw new AccountNotFoundException(ResultInfoConstants.FOLDER_NOT_FOUND);
+        if (!accountTable.isLogin()) {
+            log.warn("Need to login");
+            throw new AccountNotFoundException(ResultInfoConstants.NEED_TO_LOGIN);
         }
 
-        ItemTable newItem = item.toItemTable(folderTable.getFolder());
-
-        newItem.setCreatedAt(oldItem.get().getCreatedAt());
-        newItem.setSite(oldItem.get().getSite());
-        itemRepository.save(newItem);
-        return newItem.getSite();
-    }
-
-    public String delete(String site) {
-        if (!itemRepository.existsById(site)) {
-            log.warn("Invalid site");
-            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
-        }
-        itemRepository.deleteById(site);
-        return site;
-    }
-
-    public String addNewPassword(Item item, String site) {
-        Optional<ItemTable> oldItem = itemRepository.findById(site);
-        if (!oldItem.isPresent()) {
-            log.warn("Item not found while updating");
-            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
-        }
-        String newPassword = item.getPassword();
-        ItemTable newItem = item.toItemTable(oldItem.get().getFolder());
-        newItem.setUrl(oldItem.get().getUrl());
-        newItem.setUser(oldItem.get().getUser());
-        newItem.setPassword(newPassword);
-        newItem.setNotes(oldItem.get().getNotes());
-        newItem.setCreatedAt(oldItem.get().getCreatedAt());
-        newItem.setSite(oldItem.get().getSite());
-        itemRepository.save(newItem);
-
-        return newItem.getSite();
-    }
-
-    public Item getByUrl(String url) {
-        ItemTable optionalItemTable = itemRepository.findByUrl(url);
+        List<ItemTable> optionalItemTable = itemRepository.findBySite(site, phone);
         if (optionalItemTable == null) {
             log.warn("Item not found");
             throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
         }
-        return optionalItemTable.toItem();
+        return itemRepository.findBySite(site, phone).stream().map(ItemTable::toItem).collect(Collectors.toList());
+    }
+
+    public String update(Item item, Long id, Long phone) {
+        AccountTable accountTable = accountRepository.getUser(phone);
+        if (accountTable == null) {
+            log.warn("Invalid phone number");
+            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
+        }
+
+        if (!accountTable.isLogin()) {
+            log.warn("Need to login");
+            throw new AccountNotFoundException(ResultInfoConstants.NEED_TO_LOGIN);
+        }
+
+        ItemTable oldItem = itemRepository.getItemByIdAndPhone(id, phone);
+        if (oldItem == null) {
+            log.warn("Item not found while updating");
+            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
+        }
+
+        Long folderId = item.getFolder();
+        FolderTable folderTable = folderRepository.getFolderByIdAndPhone(folderId, phone);
+        if (folderTable == null) {
+            throw new AccountNotFoundException(ResultInfoConstants.FOLDER_NOT_FOUND);
+        }
+
+        ItemTable newItem = item.toItemTable(folderTable.getId());
+        newItem.setCreatedAt(oldItem.getCreatedAt());
+        newItem.setId(oldItem.getId());
+        newItem.setPhone(oldItem.getPhone());
+        itemRepository.save(newItem);
+        return newItem.getSite();
+    }
+
+    public String addNewPassword(Item item, Long id, Long phone) {
+        AccountTable accountTable = accountRepository.getUser(phone);
+        if (accountTable == null) {
+            log.warn("Invalid phone number");
+            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
+        }
+        if (!accountTable.isLogin()) {
+            log.warn("Need to login");
+            throw new AccountNotFoundException(ResultInfoConstants.NEED_TO_LOGIN);
+        }
+
+        ItemTable oldItem = itemRepository.getItemByIdAndPhone(id, phone);
+        if (oldItem == null) {
+            log.warn("Item not found while updating");
+            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
+        }
+        String newPassword = item.getPassword();
+        ItemTable newItem = item.toItemTable(oldItem.getFolder());
+        newItem.setId(oldItem.getId());
+        newItem.setUrl(oldItem.getUrl());
+        newItem.setUser(oldItem.getUser());
+        newItem.setPassword(newPassword);
+        newItem.setNotes(oldItem.getNotes());
+        newItem.setCreatedAt(oldItem.getCreatedAt());
+        newItem.setSite(oldItem.getSite());
+        newItem.setPhone(oldItem.getPhone());
+        itemRepository.save(newItem);
+        return newItem.getSite();
+    }
+
+    public List<Item> getByUrl(String url, Long phone) {
+        AccountTable accountTable = accountRepository.getUser(phone);
+        if (accountTable == null) {
+            log.warn("Invalid phone number");
+            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
+        }
+        if (!accountTable.isLogin()) {
+            log.warn("Need to login");
+            throw new AccountNotFoundException(ResultInfoConstants.NEED_TO_LOGIN);
+        }
+
+        List<ItemTable> optionalItemTable = itemRepository.findByUrl(url, phone);
+        if (optionalItemTable.isEmpty()) {
+            log.warn("Item not found");
+            throw new AccountNotFoundException(ResultInfoConstants.NOT_FOUND);
+        }
+        return itemRepository.findByUrl(url, phone).stream().map(ItemTable::toItem).collect(Collectors.toList());
     }
 }

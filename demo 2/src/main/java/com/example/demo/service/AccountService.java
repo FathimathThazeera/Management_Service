@@ -8,18 +8,18 @@ import com.example.demo.repository.table.AccountRepository;
 import com.example.demo.repository.table.AccountTable;
 import com.example.demo.repository.table.OtpRepository;
 import com.example.demo.repository.table.OtpTable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class AccountService {
-    @Autowired
-    private AccountRepository accountRepository;
 
-    @Autowired
-    private OtpRepository otpRepository;
+    private final AccountRepository accountRepository;
+
+    private final OtpRepository otpRepository;
 
 
     public Long create(Account account) {
@@ -134,6 +134,8 @@ public class AccountService {
             log.warn("Enter valid credential");
             throw new AccountNotFoundException(ResultInfoConstants.ENTER_VALID_CREDENTIAL);
         }
+        accountTable.setLogin(true);
+        accountRepository.save(accountTable);
         return accountTable.getPhone();
     }
 
@@ -144,10 +146,10 @@ public class AccountService {
             log.warn("Invalid phone number");
             throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
         }
+        accountTable.setLogin(false);
+        accountRepository.save(accountTable);
         return accountTable.getPhone();
     }
+
+
 }
-
-
-
-

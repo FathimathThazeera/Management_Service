@@ -15,10 +15,10 @@ public class ResultInfoConstants {
     public static final ResultInfo ENTER_VALID_CREDENTIAL = new ResultInfo("ENTER_VALID_CREDENTIAL");
     public static final ResultInfo FOLDER_NOT_FOUND = new ResultInfo("FOLDER_NOT_FOUND");
     public static final ResultInfo NOT_FOUND = new ResultInfo("NOT_FOUND");
-    public static final ResultInfo FOLDER_ALREADY_EXISTING = new ResultInfo("FOLDER_ALREADY_EXISTING");
-    public static final ResultInfo ITEM_ALREADY_EXISTING = new ResultInfo("ITEM_ALREADY_EXISTING");
     public static final ResultInfo ACCOUNT_NOT_FOUND = new ResultInfo("ACCOUNT_NOT_FOUND");
     public static final ResultInfo ACCOUNT_ALREADY_EXISTING = new ResultInfo("ACCOUNT_ALREADY_EXISTING");
     public static final ResultInfo ENTER_10_DIGIT_PHONE_NUMBER = new ResultInfo("ENTER_10_DIGIT_PHONE_NUMBER");
     public static final ResultInfo ENTER_4_DIGIT_Password = new ResultInfo("ENTER_4_DIGIT_Password");
+    public static final ResultInfo NEED_TO_LOGIN = new ResultInfo("NEED_TO_LOGIN");
+    public static final ResultInfo ENTER_VALID_URL = new ResultInfo("ENTER_VALID_URL");
 }

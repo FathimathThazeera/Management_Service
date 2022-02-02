@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -18,8 +15,11 @@ import java.time.Instant;
 @NoArgsConstructor
 public class FolderTable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String folder;
     private String note;
+    private Long phone;
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -27,12 +27,14 @@ public class FolderTable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    public FolderTable(String folder, String note) {
+    public FolderTable(Long id, String folder, String note, Long phone) {
+        this.id = id;
         this.folder = folder;
         this.note = note;
+        this.phone = phone;
     }
 
     public Folder toFolder() {
-        return new Folder(this.folder, this.note);
+        return new Folder(this.id, this.folder, this.note, this.phone);
     }
 }

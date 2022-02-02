@@ -7,11 +7,13 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class Folder {
+    private final Long id;
     @NotNull
     private final String folder;
     private final String note;
+    private final Long phone;
 
     public FolderTable toFolderTable() {
-        return new FolderTable(this.folder, this.note);
+        return new FolderTable(this.id, this.folder, this.note, this.phone);
     }
 }

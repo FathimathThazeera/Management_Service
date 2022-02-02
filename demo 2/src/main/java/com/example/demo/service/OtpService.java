@@ -4,24 +4,24 @@ import com.example.demo.constants.ResultInfoConstants;
 import com.example.demo.entity.Otp;
 import com.example.demo.exceptions.AccountNotFoundException;
 import com.example.demo.exceptions.DuplicateKeyException;
-import com.example.demo.repository.table.AccountRepository;
-import com.example.demo.repository.table.AccountTable;
-import com.example.demo.repository.table.OtpRepository;
-import com.example.demo.repository.table.OtpTable;
+import com.example.demo.repository.table.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class OtpService {
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    @Autowired
-    private OtpRepository otpRepository;
+    private final FolderRepository folderRepository;
+
+    private final ItemRepository itemRepository;
+
+    private final OtpRepository otpRepository;
 
     public int generateOtp(Otp otp) {
 
@@ -66,6 +66,8 @@ public class OtpService {
 
         if (accountTable.getCount() == 1) {
             accountRepository.deleteById(otp.getPhone());
+            folderRepository.deleteAll(folderRepository.findByPhone(otp.getPhone()));
+            itemRepository.deleteAll(itemRepository.findByPhone(otp.getPhone()));
             log.warn("once password have been changed, Cant change for second time ");
             throw new DuplicateKeyException(ResultInfoConstants.CANT_SET_PASSWORD___RE_CREATE_ACCOUNT);
         }

@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -17,13 +14,16 @@ import java.time.Instant;
 @Table(name = "item_table")
 @NoArgsConstructor
 public class ItemTable {
-    private String url;
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String url;
     private String site;
     private String user;
     private String password;
     private String notes;
-    private String folder;
+    private Long folder;
+    private Long phone;
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -31,16 +31,18 @@ public class ItemTable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    public ItemTable(String url, String site, String user, String password, String notes, String folder) {
+    public ItemTable(Long id, String url, String site, String user, String password, String notes, Long folder, Long phone) {
+        this.id = id;
         this.url = url;
         this.site = site;
         this.user = user;
         this.password = password;
         this.notes = notes;
         this.folder = folder;
+        this.phone = phone;
     }
 
     public Item toItem() {
-        return new Item(this.url, this.site, this.user, this.password, this.notes, this.folder);
+        return new Item(this.id, this.url, this.site, this.user, this.password, this.notes, this.folder, this.phone);
     }
 }
