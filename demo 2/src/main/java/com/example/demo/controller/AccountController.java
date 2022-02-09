@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.CustomUserDetailsService;
 import com.example.demo.constants.ResultInfoConstants;
-import com.example.demo.entity.Account;
 import com.example.demo.model.JwtResponse;
 import com.example.demo.response.ResponseWrapper;
 import com.example.demo.service.AccountService;
@@ -11,23 +10,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/user")
 @Slf4j
 public class AccountController {
 
-
     private final JWTUtility jwtUtility;
-
 
     private final AuthenticationManager authenticationManager;
 
@@ -35,45 +31,29 @@ public class AccountController {
 
     private final AccountService accountService;
 
-
     private final ObjectMapper objectMapper;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<Long> create(@RequestBody @Valid Account account) {
-        log.info("Received a request to create account : {}", account);
-        return new ResponseWrapper(ResultInfoConstants.ACCOUNT_CREATED_SUCCESSFULLY, accountService.create(account));
+    public ResponseWrapper<Long> create(@RequestHeader("phone") Long phone, @RequestHeader("password") int password, @RequestHeader("otp") int otp) {
+        log.info("Received a request to create account : {}", phone);
+        return new ResponseWrapper(ResultInfoConstants.ACCOUNT_CREATED_SUCCESSFULLY, accountService.create(phone, password, otp));
     }
 
     @PostMapping("/resetpassword")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<Long> resetPassword(@RequestBody @Valid Account account) {
-        log.info("Received a request to reset otp :{}", account);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, accountService.resetPassword(account));
-    }
-
-    @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<Long> logIn(@RequestBody @Valid Account account) {
-        log.info("Received a request to login :{}", account);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, accountService.logIn(account));
-    }
-
-    @PostMapping("/logout")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<Long> logOut(@RequestBody @Valid Account account) {
-        log.info("Received a request to logout :{}", account);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, accountService.logOut(account));
+    public ResponseWrapper<Long> resetPassword(@RequestHeader("phone") Long phone, @RequestHeader("password") int password, @RequestHeader("otp") int otp) {
+        log.info("Received a request to reset otp :{}", phone);
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, accountService.resetPassword(phone, password, otp));
     }
 
     @PostMapping("/authenticate")
-    public JwtResponse authenticate(@RequestBody @Valid Account account) throws Exception {
+    public ResponseEntity<?> authenticationToken(@RequestHeader("phone") Long phone, @RequestHeader("password") int password) throws Exception {
 
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            account.getPhone(),
-                            account.getPassword()
+                            phone, password
                     )
             );
         } catch (BadCredentialsException e) {
@@ -81,12 +61,13 @@ public class AccountController {
         }
 
         final UserDetails userDetails
-                = customUserDetailsService.loadUserByUsername(account.getPhone().toString());
+                = customUserDetailsService.loadUserByUsername(phone.toString());
 
         final String token =
                 jwtUtility.generateToken(userDetails);
 
-        return new JwtResponse(token);
-
+        log.info("Received a request to create token : {}", token);
+        // return new ResponseWrapper(ResultInfoConstants.SUCCESS, new JwtResponse(token));
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }

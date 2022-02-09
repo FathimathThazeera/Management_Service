@@ -25,24 +25,24 @@ public class FolderController {
 
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/all/{phone}")
+    @GetMapping("/all/{userid}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Folder> getAll(@PathVariable @NotNull @Positive Long phone) {
+    public List<Folder> getAll(@PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to get all folder ");
-        return folderService.getMap(phone);
+        return folderService.getMap(userId);
     }
 
-    @GetMapping("/{phone}/{folder}")
+    @GetMapping("/{userid}/{folder}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Folder> getByFolder(@PathVariable String folder, @PathVariable @NotNull @Positive Long phone) {
+    public List<Folder> getByFolder(@PathVariable String folder, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to get folder : {}", folder);
-        return folderService.getByFolder(folder, phone);
+        return folderService.getByFolder(folder, userId);
     }
 
-    @PostMapping("/insert/{phone}")
+    @PostMapping("/insert/{userid}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<String> insert(@RequestBody @Valid Folder folder, @PathVariable @NotNull @Positive Long phone) {
+    public ResponseWrapper<String> insert(@RequestBody @Valid Folder folder, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to insert folder : {} ", folder);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, folderService.insert(folder, phone));
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, folderService.insert(folder, userId));
     }
 }

@@ -19,7 +19,7 @@ public class FolderTable {
     private Long id;
     private String folder;
     private String note;
-    private Long phone;
+    private Long userId;
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -27,14 +27,14 @@ public class FolderTable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    public FolderTable(Long id, String folder, String note, Long phone) {
+    public FolderTable(Long id, String folder, String note, Long userId) {
         this.id = id;
         this.folder = folder;
         this.note = note;
-        this.phone = phone;
+        this.userId = userId;
     }
 
     public Folder toFolder() {
-        return new Folder(this.id, this.folder, this.note, this.phone);
+        return new Folder(this.id, this.folder, this.note, this.userId);
     }
 }

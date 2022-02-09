@@ -23,7 +23,7 @@ public class ItemTable {
     private String password;
     private String notes;
     private Long folder;
-    private Long phone;
+    private Long userId;
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -31,7 +31,7 @@ public class ItemTable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    public ItemTable(Long id, String url, String site, String user, String password, String notes, Long folder, Long phone) {
+    public ItemTable(Long id, String url, String site, String user, String password, String notes, Long folder, Long userId) {
         this.id = id;
         this.url = url;
         this.site = site;
@@ -39,10 +39,10 @@ public class ItemTable {
         this.password = password;
         this.notes = notes;
         this.folder = folder;
-        this.phone = phone;
+        this.userId = userId;
     }
 
     public Item toItem() {
-        return new Item(this.id, this.url, this.site, this.user, this.password, this.notes, this.folder, this.phone);
+        return new Item(this.id, this.url, this.site, this.user, this.password, this.notes, this.folder, this.userId);
     }
 }

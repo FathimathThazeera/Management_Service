@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -18,11 +15,13 @@ import java.time.Instant;
 @NoArgsConstructor
 public class AccountTable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Long phone;
     private int password;
-    private int otp;
+    //private int otp;
     private int count;
-    private boolean login;
+    // private boolean login;
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -30,15 +29,12 @@ public class AccountTable {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    public AccountTable(Long phone, int password, int otp, int count, boolean login) {
+    public AccountTable(Long phone, int password) {
         this.phone = phone;
         this.password = password;
-        this.otp = otp;
-        this.count = count;
-        this.login = login;
     }
 
     public Account toAccount() {
-        return new Account(this.phone, this.password, this.otp, this.count, this.login);
+        return new Account(this.id, this.phone, this.password, this.count);
     }
 }

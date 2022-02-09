@@ -8,12 +8,12 @@ import java.util.List;
 
 @Repository
 public interface FolderRepository extends JpaRepository<FolderTable, Long> {
-    @Query(value = "select * from folder_table where folder = :folder and phone = :phone", nativeQuery = true)
-    public List<FolderTable> getByFolderList(String folder, Long phone);
+    @Query(value = "select * from folder_table where folder = :folder and userId = :userId", nativeQuery = true)
+    public List<FolderTable> getByFolderList(String folder, Long userId);
 
-    @Query(value = "select * from folder_table where id = :id and phone = :phone", nativeQuery = true)
-    public FolderTable getFolderByIdAndPhone(Long id, Long phone);
+    @Query(value = "select * from folder_table where id = :id and userId = :userId", nativeQuery = true)
+    public FolderTable getFolderByIdAndUserId(Long id, Long userId);
 
-    @Query(value = "select * from folder_table where phone = :phone ", nativeQuery = true)
-    public List<FolderTable> findByPhone(Long phone);
+    @Query(value = "select * from folder_table where userId = :userId ", nativeQuery = true)
+    public List<FolderTable> findByUserId(Long userId);
 }

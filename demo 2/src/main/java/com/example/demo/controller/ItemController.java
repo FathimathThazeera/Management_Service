@@ -7,6 +7,7 @@ import com.example.demo.service.ItemService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,45 +26,46 @@ public class ItemController {
 
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/all/{phone}")
+    @GetMapping("/all/{userid}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<List<Item>> getAll(@PathVariable @NotNull @Positive Long phone) {
+    public ResponseWrapper<List<Item>> getAll(@PathVariable @NotNull @Positive Long userId, Pageable page) {
         log.info("Received a request to get all item info ");
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.getMap(phone));
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.getMap(userId, page));
     }
 
-    @GetMapping("/{site}/{phone}")
+    @GetMapping("/{site}/{userid}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<List<Item>> getBySite(@PathVariable String site, @PathVariable @NotNull @Positive Long phone) {
+    public ResponseWrapper<List<Item>> getBySite(@PathVariable String site, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to get info by site name : {}", site);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.getBySite(site, phone));
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.getBySite(site, userId));
     }
 
-    @PostMapping("/insert/{phone}")
+    @PostMapping("/insert/{userid}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<String> insert(@RequestBody @Valid Item item, @PathVariable @NotNull @Positive Long phone) {
+    public ResponseWrapper<String> insert(@RequestBody @Valid Item item, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to insert item : {}", item);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.insert(item, phone));
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.insert(item, userId));
     }
 
-    @PutMapping("/update/{id}/{phone}")
+    @PutMapping("/update/{id}/{userid}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<String> update(@RequestBody @Valid Item item, @PathVariable @NotNull @Positive Long id, @PathVariable @NotNull @Positive Long phone) {
+    public ResponseWrapper<String> update(@RequestBody @Valid Item item, @PathVariable @NotNull @Positive Long id, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to update item : {} ,id : {}", item, id);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.update(item, id, phone));
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.update(item, id, userId));
     }
 
-    @PutMapping("/newpassword/{phone}/{id}")
+    @PutMapping("/newpassword/{userid}/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseWrapper<String> addNewPassword(@PathVariable @NotNull @Positive Long id, @RequestBody @Valid Item item, @PathVariable @NotNull @Positive Long phone) {
+    public ResponseWrapper<String> addNewPassword(@PathVariable @NotNull @Positive Long id, @RequestBody @Valid Item item, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to  add new password : {} ,site : {}", item, id);
-        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.addNewPassword(item, id, phone));
+        return new ResponseWrapper(ResultInfoConstants.SUCCESS, itemService.addNewPassword(item, id, userId));
     }
 
-    @GetMapping("/url/{phone}/{url}")
+    @GetMapping("/url/{userid}/{url}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Item> getByUrl(@PathVariable @Valid String url, @PathVariable @NotNull @Positive Long phone) {
+    public List<Item> getByUrl(@PathVariable @Valid String url, @PathVariable @NotNull @Positive Long userId) {
         log.info("Received a request to get info by url : {}", url);
-        return itemService.getByUrl(url, phone);
+        return itemService.getByUrl(url, userId);
     }
+
 }

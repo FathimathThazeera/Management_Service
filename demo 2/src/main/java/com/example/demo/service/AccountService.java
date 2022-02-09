@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.constants.ResultInfoConstants;
-import com.example.demo.entity.Account;
+import com.example.demo.entity.Validator;
 import com.example.demo.exceptions.AccountNotFoundException;
 import com.example.demo.exceptions.DuplicateKeyException;
 import com.example.demo.repository.table.AccountRepository;
@@ -12,143 +12,75 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 @Slf4j
 public class AccountService {
+    private final Validator validator;
 
     private final AccountRepository accountRepository;
 
     private final OtpRepository otpRepository;
 
 
-    public Long create(Account account) {
-        if (account.getPhone() == null || account.getPassword() == 0) {
-            log.warn("Enter phone number and password");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_PHONE_NUMBER_AND_PASSWORD);
-        }
-        if (accountRepository.existsById(account.getPhone())) {
-            log.warn("Duplicate message is trying to be inserted/ ACCOUNT_ALREADY_EXISTING");
-            throw new DuplicateKeyException(ResultInfoConstants.ACCOUNT_ALREADY_EXISTING);
-        }
+    public Long create(Long phone, int password, int otp) {
+        validator.validatePassword(password);
 
-        int number = String.valueOf(account.getPhone()).length();
-        if (number > 10 || number < 10) {
-            log.warn("Enter 10 digit phone number");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_10_DIGIT_PHONE_NUMBER);
-        }
-        int password = String.valueOf(account.getPassword()).length();
-        if (password > 4 || password < 4) {
-            log.warn("Enter 4 digit password");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_4_DIGIT_Password);
-        }
-        Long num = account.getPhone();
-        AccountTable accountTable = accountRepository.getUser(num);
-        if (accountTable != null) {
-            log.warn("Invalid phone number");
+        validator.validatePhoneNumber(phone);
+
+        List<Long> accountTable = accountRepository.getAllPhoneNumber();
+        if (accountTable.contains(phone)) {
+            log.warn("ACCOUNT_ALREADY_EXISTING");
             throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_ALREADY_EXISTING);
         }
-        OtpTable otpTable = otpRepository.getUser(num);
+        OtpTable otpTable = otpRepository.getUser(phone);
         if (otpTable == null) {
             log.warn("Generate otp");
             throw new DuplicateKeyException(ResultInfoConstants.GENERATE_OTP);
         }
-        if (account.getOtp() != otpTable.getOtp()) {
+        if (otp != otpTable.getOtp()) {
             log.warn("Put valid otp");
             throw new DuplicateKeyException(ResultInfoConstants.PUT_VALID_OTP);
         }
-        otpRepository.deleteById(num);
-        return accountRepository.save(account.toAccountTable()).getPhone();
+        otpRepository.deleteById(phone);
+        AccountTable newAccountTable = new AccountTable(phone, password);
+        return accountRepository.save(newAccountTable).getPhone();
+
     }
 
-    public Long resetPassword(Account account) {
+    public Long resetPassword(Long phone, int password, int otp) {
 
-        if (account.getPhone() == null || account.getPassword() == 0) {
-            log.warn("Enter phone number and password");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_PHONE_NUMBER_AND_PASSWORD);
-        }
+        validator.validatePassword(password);
 
-        int number = String.valueOf(account.getPhone()).length();
-        if (number > 10 || number < 10) {
-            log.warn("Enter 10 digit phone number");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_10_DIGIT_PHONE_NUMBER);
-        }
-        int password = String.valueOf(account.getPassword()).length();
-        if (password > 4 || password < 4) {
-            log.warn("Enter 4 digit password");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_4_DIGIT_Password);
-        }
+        validator.validatePhoneNumber(phone);
 
-        Long num = account.getPhone();
-        AccountTable accountTable = accountRepository.getUser(num);
+        AccountTable accountTable = accountRepository.getUser(phone);
         if (accountTable == null) {
             log.warn("Invalid phone number");
             throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
         }
 
-        OtpTable otpTable = otpRepository.getUser(num);
+        OtpTable otpTable = otpRepository.getUser(phone);
         if (otpTable == null) {
             log.warn("Generate otp");
             throw new DuplicateKeyException(ResultInfoConstants.GENERATE_OTP);
         }
 
-        if (account.getOtp() != otpTable.getOtp()) {
+        if (otp != otpTable.getOtp()) {
             log.warn("Put valid otp");
             throw new DuplicateKeyException(ResultInfoConstants.PUT_VALID_OTP);
         }
-        otpRepository.deleteById(num);
+        otpRepository.deleteById(phone);
 
-        AccountTable newAccount = account.toAccountTable();
+        AccountTable newAccount = new AccountTable(phone, password);
         newAccount.setCreatedAt(accountTable.getCreatedAt());
 
         int i = newAccount.getCount() + 1;
         newAccount.setCount(i);
         accountRepository.save(newAccount);
         return newAccount.getPhone();
-    }
-
-    public Long logIn(Account account) {
-        if (account.getPhone() == null || account.getPassword() == 0) {
-            log.warn("Enter phone number and password");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_PHONE_NUMBER_AND_PASSWORD);
-        }
-        int number = String.valueOf(account.getPhone()).length();
-        if (number > 10 || number < 10) {
-            log.warn("Enter 10 digit phone number");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_10_DIGIT_PHONE_NUMBER);
-        }
-        int password = String.valueOf(account.getPassword()).length();
-        if (password > 4 || password < 4) {
-            log.warn("Enter 4 digit password");
-            throw new DuplicateKeyException(ResultInfoConstants.ENTER_4_DIGIT_Password);
-        }
-
-        Long num = account.getPhone();
-        AccountTable accountTable = accountRepository.getUser(num);
-        if (accountTable == null) {
-            log.warn("Invalid phone number");
-            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
-        }
-
-        if (accountTable.getPassword() != account.getPassword()) {
-            log.warn("Enter valid credential");
-            throw new AccountNotFoundException(ResultInfoConstants.ENTER_VALID_CREDENTIAL);
-        }
-        accountTable.setLogin(true);
-        accountRepository.save(accountTable);
-        return accountTable.getPhone();
-    }
-
-    public Long logOut(Account account) {
-        Long num = account.getPhone();
-        AccountTable accountTable = accountRepository.getUser(num);
-        if (accountTable == null) {
-            log.warn("Invalid phone number");
-            throw new AccountNotFoundException(ResultInfoConstants.ACCOUNT_NOT_FOUND);
-        }
-        accountTable.setLogin(false);
-        accountRepository.save(accountTable);
-        return accountTable.getPhone();
     }
 
 
