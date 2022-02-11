@@ -4,6 +4,6 @@ import com.example.demo.response.ResultInfo;
 import lombok.Data;
 
 @Data
-public class DuplicateKeyException extends RuntimeException {
+public class AccountNotFoundException extends RuntimeException {
     private final ResultInfo result;
 }
